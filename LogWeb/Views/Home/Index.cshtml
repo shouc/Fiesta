@@ -1,0 +1,186 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log system</title>
+    <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
+</head>
+<body>
+    <hr />
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">Time range</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="starttime" name="starttime" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">Time range</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="endtime" name="endtime" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">Level</label>
+                <div class="layui-input-inline">
+                    <select name="loglevel">
+                        <option value="-1">All</option>
+                        <option value="0">Trace</option>
+                        <option value="1">Debug</option>
+                        <option value="2">Information</option>
+                        <option value="3">Warning</option>
+                        <option value="4">Error</option>
+                        <option value="5">Critical</option>
+                        <option value="6">None</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">Project</label>
+                <div class="layui-input-inline">
+                    <select name="appid">
+                        <option value="">All</option>
+                        <option value="CHANGE_IT">CHANGE_IT</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">Branch</label>
+                <div class="layui-input-inline">
+                    <select name="branch">
+                        <option value="">All</option>
+                        <option value="dev">dev</option>
+                        <option value="test">test</option>
+                        <option value="publish">publish</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">Module name</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="model" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">Classify</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="category" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">Keyword</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="logkey" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" lay-submit="" lay-filter="table_search">Search</button>
+                <button type="reset" class="layui-btn layui-btn-primary">Reset</button>
+            </div>
+        </div>
+    </form>
+    <hr />
+    <table id="page_table" lay-filter="page_table"></table>
+    <script src="~/lib/layui/layui.js"></script>
+    <script type="text/html" id="tool_page_table">
+        <a class="layui-btn layui-btn-xs" lay-event="info">详情</a>
+    </script>
+    <script type="text/html" id="type">
+        {{#  if(d.loglevel =='0'){ }}
+        <span style="color: #009688;">Trace</span>
+        {{#  } else if(d.loglevel == '1'){ }}
+        <span style="color: #dddddd;">Debug</span>
+        {{#  } else if(d.loglevel == '2'){ }}
+        <span style="color: #dddddd;">Information</span>
+        {{#  }else if(d.loglevel == '3'){ }}
+        <span style="color: #FFB800;">Warning</span>
+        {{#  }else if(d.loglevel == '4'){ }}
+        <span style="color: #FF5722;">Error</span>
+        {{#  }else if(d.loglevel == '5'){ }}
+        <span style="color: #FFB800;">Critical</span>
+        {{#  } else if(d.loglevel == '6'){ }}
+        <span style="color: #dddddd;">None</span>
+        {{# } }}
+    </script>
+    <script type="text/html" id="appname">
+        {{#  if(d.appid =='cb91f9f2850d4af1b6b2cb80d000659d'){ }}
+        金宝贝
+        {{#  }else if(d.appid =='ff19b5124abb4f5faf034d307d53d99f'){ }}
+        商城
+        {{#  }else if(d.appid =='cc3a7c473b6e4476b2906d948ce9df60'){ }}
+        官网
+        {{#  }else if(d.appid =='92becf4ceddd44e78fbfe3f15c121c2c'){ }}
+        待定
+        {{#  }else if(d.appid =='fbcad2c39ba041d797cf0a9a4471557a'){ }}
+        待定
+        {{#  } }}
+    </script>
+    <script type="text/html" id="time">
+        <span>{{new Date(d.logtime-28800000).toLocaleString()}}</span>
+    </script>
+    <script>
+        layui.use(['table', 'form', 'laydate'], function () {
+            var $ = layui.jquery;
+            var table = layui.table;
+            var form = layui.form;
+            var laydate = layui.laydate;
+
+            laydate.render({
+                elem: '#starttime'
+                ,type: 'datetime'
+                , value: '@DateTime.Now.Date.ToString("yyyy-MM-dd")' +' 00:00:00'
+            });
+
+            laydate.render({
+                elem: '#endtime'
+                , type: 'datetime'
+            });
+
+            form.on('submit(table_search)', function (data) {
+                currentTable.reload({
+                    where: data.field,
+                    page: {
+                        curr: 1 
+                    }
+                });
+                return false;
+            });
+
+            var currentTable = table.render({
+                elem: '#page_table',
+                url: '/home/LogPage',
+                method: 'post',
+                page: true,
+                limit:20,
+                cols: [[
+                    { field: 'appid', title: 'Appid', width: 280 },
+                    { title: '项目', templet: '#appname', width: 150 },
+                    { field: 'branch', title: '分支', width: 100 },
+                    { field: 'loglevel', title: '等级', templet: '#type', width: 80 },
+                    { field: 'model', title: '模块', width: 130 },
+                    { field: 'category', title: '分类', width: 130 },
+                    { field: 'logkey', title: '关键字' },
+                    { field: 'logtime', title: '日志时间', width: 180, templet:'#time'},
+                    { field: 'logmsg', title: '日志内容'},
+                    { align: 'center', toolbar: '#tool_page_table', width: 70, title: '操作' },
+                ]],
+            });
+
+            //监听工具条
+            table.on('tool(page_table)', function (obj) {
+                var id = obj.data.InsuranceDeclareId;
+                if (obj.event === 'info') {
+
+                }
+            });
+        });
+    </script>
+</body>
+</html>
